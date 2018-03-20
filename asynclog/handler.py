@@ -35,8 +35,8 @@ class AsyncLog:
         '''Choose the way how async logging perform.
 
         :param use_thread: Set to use the asynchronous provided by
-            ThreadPoolExecutor.
-        :param use_celery: Set if Celery is available.
+            ThreadPoolExecutor. True by default.
+        :param use_celery: Set if Celery is available, False by default.
         :param thread_worker: Max workers of ThreadPoolExecutor.
         '''
         if use_thread and use_celery:
@@ -46,10 +46,14 @@ class AsyncLog:
                 'None of approach are given, set either use_thread or '
                 'use_celery to True.')
 
+        if thread_worker and not isinstance(thread_worker, int):
+            raise ValueError('Integer expected for thread_worker argument.')
+
         self.use_thread = use_thread
         self.use_celery = use_celery
         if use_thread:
-            self._thread_executor = futures.ThreadPoolExecutor(max_workers=thread_worker)
+            self._thread_executor = futures.ThreadPoolExecutor(
+                max_workers=thread_worker)
         else:
             self._thread_executor = None
         super(AsyncLog, self).__init__(*args, **kwargs)
