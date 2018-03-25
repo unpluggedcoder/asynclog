@@ -4,6 +4,11 @@ python:
   - "3.6"
   - "3.6-dev"  # 3.6 development branch
   - "3.7-dev"  # 3.7 development branch
+# command to install dependencies
+install:
+  - pip install coveralls
 # command to run tests
 script:
-  - python -m unittest
+  - coverage run -m unittest
+after_success:
+  - coveralls
