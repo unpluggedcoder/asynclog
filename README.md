@@ -1,7 +1,11 @@
 ## asynclog
-[![Build Status](https://travis-ci.org/unpluggedcoder/asynclog.svg?branch=master)](https://travis-ci.org/unpluggedcoder/asynclog)
+[![Build Status](https://travis-ci.org/unpluggedcoder/asynclog.svg?branch=master)](https://travis-ci.org/unpluggedcoder/asynclog) [![Coverage Status](https://coveralls.io/repos/github/unpluggedcoder/asynclog/badge.svg?branch=master)](https://coveralls.io/github/unpluggedcoder/asynclog?branch=master)
 
 `asynclog` provide the asynchronous way for python logging. Leave the logging I/O(especially the network I/O when we want to logging to a network endpoint) to the asynchronous thread or asynchronous task provided by [celery](http://www.celeryproject.org/) .
+
+#### Requirements
+
+* Python 3.5+
 
 #### Install
 

@@ -14,7 +14,7 @@ setup(
     package_data={
         'asynclog': ['README.md', ]
     },
-    keywords='logging asyncio asynchronous',
+    keywords='logging asynchronous',
     install_requires=[],
     classifiers=[
         'Programming Language :: Python :: 3',
