@@ -79,7 +79,7 @@ class TestAsyncLog(unittest.TestCase):
         self.assertEqual(ex.exception.args[0],
                          'Integer expected for thread_worker argument.')
 
-    @mock.patch('tests.test_handler.write_task')
+    @mock.patch('asynclog.tests.test_handler.write_task')
     def test_can_create_asynclog_with_right_params(self, write_mock):
         instance = AsyncLogDispatcher(
             write_func, use_thread=True, use_celery=False)
@@ -104,7 +104,7 @@ class TestAsyncLog(unittest.TestCase):
         handler.close()
         self.assertEqual(len(msgs), 3)
 
-    @mock.patch('tests.test_handler.write_task')
+    @mock.patch('asynclog.tests.test_handler.write_task')
     def test_can_work_with_celery(self, write_mock):
         msg_records = []
 
