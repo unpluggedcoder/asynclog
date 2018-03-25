@@ -24,9 +24,12 @@ import logging
 from concurrent import futures
 
 
-class AsyncLogHandler(logging.Handler):
-    '''
-    A handler class which process logging in an asynchronous way.
+class AsyncLogDispatcher(logging.Handler):
+    ''' A dispatcher class which process logging in an asynchronous way.
+
+    It doesn't do any log procedure actually. Instead, it just provide the
+    asynchonrous way to do the logging. That's why it named as Dispatcher.
+    It's useful when logging to a network endpoint.
     '''
     def __init__(self, func, use_thread=True, use_celery=False,
                  thread_worker=None, *args, **kwargs):
@@ -64,7 +67,7 @@ class AsyncLogHandler(logging.Handler):
                 max_workers=thread_worker)
         else:
             self._thread_executor = None
-        super(AsyncLogHandler, self).__init__(*args, **kwargs)
+        super(AsyncLogDispatcher, self).__init__(*args, **kwargs)
 
     def close(self):
         '''

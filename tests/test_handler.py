@@ -3,7 +3,7 @@ import unittest
 from unittest import mock
 from functools import wraps
 
-from asynclog.handler import AsyncLogHandler
+from asynclog import AsyncLogDispatcher
 
 has_celery = False
 app = None
@@ -21,36 +21,36 @@ except ImportError:
         return wrapper
 
 
-records = []
+msgs = []
 
 
-def write_func(record):
-    global records
-    records.append(record)
+def write_func(msg):
+    global msgs
+    msgs.append(msg)
 
 
 @shared_task
-def write_task(record):
-    # Write log in Network IO
-    print(record)
+def write_task(msg):
+    # Write log into network endpoint
+    print(msg)
 
 
 class TestAsyncLog(unittest.TestCase):
-    ''' TestCase for AsyncLogHandler class
+    ''' TestCase for AsyncLogDispatcher class
     '''
 
     def setUp(self):
-        global records
-        records = []
+        global msgs
+        msgs = []
 
     def test_create_asynclog_with_error_params(self):
         with self.assertRaises(ValueError) as ex:
-            AsyncLogHandler(write_func, use_thread=True, use_celery=True)
+            AsyncLogDispatcher(write_func, use_thread=True, use_celery=True)
         self.assertEqual(ex.exception.args[0],
                          'Can not both use thread and celery.')
 
         with self.assertRaises(ValueError) as ex:
-            AsyncLogHandler(write_func, use_thread=False, use_celery=False)
+            AsyncLogDispatcher(write_func, use_thread=False, use_celery=False)
         self.assertEqual(
             ex.exception.args[0],
             'None of approach are given, set either use_thread or '
@@ -58,19 +58,19 @@ class TestAsyncLog(unittest.TestCase):
 
         with self.assertRaises(ValueError) as ex:
             wrong_type = ('wrong', 'type')
-            AsyncLogHandler(wrong_type, use_thread=True)
+            AsyncLogDispatcher(wrong_type, use_thread=True)
         self.assertEqual(
             ex.exception.args[0],
             'func must be a callable function while use_thread is True.')
 
         with self.assertRaises(ValueError) as ex:
-            AsyncLogHandler(write_func, use_thread=False, use_celery=True)
+            AsyncLogDispatcher(write_func, use_thread=False, use_celery=True)
         self.assertEqual(
             ex.exception.args[0],
             'Makesure Celery is available while use_celery is True.')
 
         with self.assertRaises(ValueError) as ex:
-            AsyncLogHandler(
+            AsyncLogDispatcher(
                 write_func,
                 use_thread=True,
                 use_celery=False,
@@ -80,20 +80,20 @@ class TestAsyncLog(unittest.TestCase):
 
     @mock.patch('tests.test_handler.write_task')
     def test_can_create_asynclog_with_right_params(self, write_mock):
-        instance = AsyncLogHandler(
+        instance = AsyncLogDispatcher(
             write_func, use_thread=True, use_celery=False)
         self.assertIsNotNone(instance._thread_executor)
         self.assertIsNotNone(instance.func)
 
         write_mock.delay = mock.MagicMock()
-        instance = AsyncLogHandler(
+        instance = AsyncLogDispatcher(
             write_task, use_thread=False, use_celery=True)
         self.assertIsNone(instance._thread_executor)
         self.assertIsNotNone(instance.func)
 
     def test_can_work_with_thread(self):
         logger = logging.getLogger()
-        handler = AsyncLogHandler(write_func, use_thread=True)
+        handler = AsyncLogDispatcher(write_func, use_thread=True)
         handler.setLevel(logging.INFO)
         logger.setLevel(logging.INFO)
         logger.addHandler(handler)
@@ -101,17 +101,17 @@ class TestAsyncLog(unittest.TestCase):
         logger.info('Info log')
         logger.info('Warning log')
         handler.close()
-        self.assertEqual(len(records), 3)
+        self.assertEqual(len(msgs), 3)
 
     @mock.patch('tests.test_handler.write_task')
     def test_can_work_with_celery(self, write_mock):
-        msgs = []
+        msg_records = []
 
         def side_effect(msg):
-            msgs.append(msg)
+            msg_records.append(msg)
         write_mock.delay = mock.MagicMock(side_effect=side_effect)
         logger = logging.getLogger()
-        handler = AsyncLogHandler(
+        handler = AsyncLogDispatcher(
             write_task, use_celery=True, use_thread=False)
         handler.setLevel(logging.INFO)
         logger.setLevel(logging.INFO)
@@ -126,7 +126,7 @@ class TestAsyncLog(unittest.TestCase):
             mock.call('Debug log'), mock.call('Info log'),
             mock.call('Warning log')
         ])
-        self.assertEqual(len(msgs), 3)
+        self.assertEqual(len(msg_records), 3)
 
 
 if __name__ == '__main__':
