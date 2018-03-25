@@ -1,4 +1,5 @@
 ## asynclog
+[![Build Status](https://travis-ci.org/unpluggedcoder/asynclog.svg?branch=master)](https://travis-ci.org/unpluggedcoder/asynclog)
 
 `asynclog` provide the asynchronous way for python logging. Leave the logging I/O(especially the network I/O when we want to logging to a network endpoint) to the asynchronous thread or asynchronous task provided by [celery](http://www.celeryproject.org/) .
 
