@@ -1,3 +1,4 @@
+import sys
 import logging
 import unittest
 from unittest import mock
@@ -121,7 +122,8 @@ class TestAsyncLog(unittest.TestCase):
         logger.info('Info log')
         logger.info('Warning log')
         handler.close()
-        write_mock.delay.assert_called()
+        if sys.version_info > (3, 6):
+            write_mock.delay.assert_called()
         write_mock.delay.assert_has_calls([
             mock.call('Debug log'), mock.call('Info log'),
             mock.call('Warning log')
