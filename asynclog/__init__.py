@@ -1,6 +1,6 @@
-from .handler import AsyncLog, log_async
+from .handler import AsyncLogHandler
 
 
-__version__ = '0.0.1'
+__version__ = '0.0.5'
 
-__all__ = ['AsyncLog', 'log_async']
+__all__ = ['AsyncLogHandler']
