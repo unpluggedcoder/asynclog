@@ -189,9 +189,9 @@ class TestAsyncLog(unittest.TestCase):
         }
         with self.assertRaises(ValueError) as ex:
             logging.config.dictConfig(log_cfg)
-        print(ex.exception.args[0])
         self.assertIn(
-            'Cannot resolve \'asynclog.tests.noone\':', ex.exception.args[0])
+            'Unable to configure handler \'async_handler\'',
+            ex.exception.args[0])
 
 
 if __name__ == '__main__':
