@@ -15,6 +15,39 @@ pip install asynclog
 
 #### Usage
 
+* Config from dict
+
+```python
+log_cfg = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(asctime)s \n %(levelname)s \n %(message)s'
+        },
+    },
+    'handlers': {
+        'async_handler': {
+            'level': 'INFO',
+            'formatter': 'simple',
+            'class': 'asynclog.AsyncLogDispatcher',
+            'func': '[Dot_Path_To_Your_Func]',
+        }
+    },
+    'loggers': {
+        'asynclogger': {
+            'handlers': ['async_handler', ],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    }
+}
+
+logging.config.dictConfig(log_cfg)
+logger = logging.getLogger('asynclogger')
+logger.info('Test asynclog')
+```
+
 * Using thread
 
 ```python
