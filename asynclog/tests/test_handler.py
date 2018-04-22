@@ -1,5 +1,5 @@
 import sys
-import logging
+import logging.config
 import unittest
 from unittest import mock
 from functools import wraps
@@ -129,6 +129,68 @@ class TestAsyncLog(unittest.TestCase):
             mock.call('Warning log')
         ])
         self.assertEqual(len(msg_records), 3)
+
+    def test_can_used_from_dictConfig(self):
+        log_cfg = {
+            'version': 1,
+            'disable_existing_loggers': False,
+            'formatters': {
+                'simple': {
+                    'format': '%(asctime)s \n %(levelname)s \n %(message)s'
+                },
+            },
+            'handlers': {
+                'async_handler': {
+                    'level': 'INFO',
+                    'formatter': 'simple',
+                    'class': 'asynclog.AsyncLogDispatcher',
+                    'func': 'asynclog.tests.test_handler.write_func',
+                }
+            },
+            'loggers': {
+                'asynclogger': {
+                    'handlers': ['async_handler', ],
+                    'level': 'DEBUG',
+                    'propagate': False,
+                },
+            }
+        }
+        logging.config.dictConfig(log_cfg)
+        logger = logging.getLogger('asynclogger')
+        logger.info('Test1')
+        logger.info('Test2')
+        logger.info('Test3')
+        self.assertEqual(len(msgs), 3)
+
+    def test_error_import_from_dictConfig(self):
+        log_cfg = {
+            'version': 1,
+            'disable_existing_loggers': False,
+            'formatters': {
+                'simple': {
+                    'format': '%(asctime)s \n %(levelname)s \n %(message)s'
+                },
+            },
+            'handlers': {
+                'async_handler': {
+                    'level': 'INFO',
+                    'formatter': 'simple',
+                    'class': 'asynclog.AsyncLogDispatcher',
+                    'func': 'asynclog.tests.noone',
+                }
+            },
+            'loggers': {
+                'asynclogger': {
+                    'handlers': ['async_handler', ],
+                    'level': 'DEBUG',
+                    'propagate': False,
+                },
+            }
+        }
+        with self.assertRaises(ValueError) as ex:
+            logging.config.dictConfig(log_cfg)
+        self.assertIn(
+            'Cannot resolve \'asynclog.tests.noone\':', ex.exception.args[0])
 
 
 if __name__ == '__main__':

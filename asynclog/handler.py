@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import sys
 import logging
 from concurrent import futures
 
@@ -31,6 +32,8 @@ class AsyncLogDispatcher(logging.Handler):
     asynchonrous way to do the logging. That's why it named as Dispatcher.
     It's useful when logging to a network endpoint.
     '''
+    importer = staticmethod(__import__)
+
     def __init__(self, func, use_thread=True, use_celery=False,
                  thread_worker=None, *args, **kwargs):
         '''Choose the way how async logging perform.
@@ -49,6 +52,8 @@ class AsyncLogDispatcher(logging.Handler):
                 'None of approach are given, set either use_thread or '
                 'use_celery to True.')
 
+        if isinstance(func, str):
+            func = self.resolve(func)
         if use_thread and not callable(func):
             raise ValueError(
                 'func must be a callable function while use_thread is True.')
@@ -68,6 +73,25 @@ class AsyncLogDispatcher(logging.Handler):
         else:
             self._thread_executor = None
         super(AsyncLogDispatcher, self).__init__(*args, **kwargs)
+
+    def resolve(self, s):
+        name = s.split('.')
+        used = name.pop(0)
+        try:
+            found = self.importer(used)
+            for frag in name:
+                used += '.' + frag
+                try:
+                    found = getattr(found, frag)
+                except AttributeError:
+                    self.importer(used)
+                    found = getattr(found, frag)
+            return found
+        except ImportError:
+            e, tb = sys.exc_info()[1:]
+            v = ValueError('Cannot resolve %r: %s' % (s, e))
+            v.__cause__, v.__traceback__ = e, tb
+            raise v
 
     def close(self):
         '''

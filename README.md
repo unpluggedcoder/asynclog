@@ -10,7 +10,7 @@
 #### Install
 
 ```shell
-python setup.py install
+pip install asynclog
 ```
 
 #### Usage
@@ -59,10 +59,10 @@ logger.info('Test Log')
 #### Test
 
 ```shell
-python -m unittest
-....
+python3 -m unittest
+......
 ----------------------------------------------------------------------
-Ran 4 tests in 0.003s
+Ran 6 tests in 0.007s
 
 OK
 ```
