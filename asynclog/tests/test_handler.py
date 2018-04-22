@@ -189,6 +189,7 @@ class TestAsyncLog(unittest.TestCase):
         }
         with self.assertRaises(ValueError) as ex:
             logging.config.dictConfig(log_cfg)
+        print(ex.exception.args[0])
         self.assertIn(
             'Cannot resolve \'asynclog.tests.noone\':', ex.exception.args[0])
 
