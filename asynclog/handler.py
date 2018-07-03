@@ -97,12 +97,9 @@ class AsyncLogDispatcher(logging.Handler):
         '''
         Close ThreadPoolExecutor if needed.
         '''
-        self.acquire()
-        try:
-            if self.use_thread and self._thread_executor:
-                self._thread_executor.shutdown(wait=True)
-        finally:
-            self.release()
+        if self.use_thread and self._thread_executor:
+            self._thread_executor.shutdown(wait=True)
+        super(AsyncLogDispatcher, self).close()
 
     def emit(self, record):
         msg = self.format(record)
